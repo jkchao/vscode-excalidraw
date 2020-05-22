@@ -3,7 +3,6 @@
 	"displayName": "vscode-excalidraw",
 	"description": "excalidraw",
 	"version": "0.0.1",
-
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/jkchao/vscode-excalidraw.git"
@@ -14,7 +13,14 @@
 	"url": "https://github.com/jkchao/vscode-excalidraw/issues"
 	},
 	"homepage": "https://github.com/jkchao/vscode-excalidraw#readme",
-
+	"contributes": {
+		"menus": {
+			"commandPalette": [{
+				"command": "vscode-excalidraw.helloWorld",
+				"when": "resourceExtname == .excalidraw"
+			}]
+		}
+	},
 	"engines": {
 		"vscode": "^1.45.0"
 	},
@@ -25,14 +31,6 @@
         "onCommand:vscode-excalidraw.helloWorld"
 	],
 	"main": "./out/extension.js",
-	"contributes": {
-		"commands": [
-			{
-				"command": "vscode-excalidraw.helloWorld",
-                "title": "Hello World"
-			}
-		]
-	},
 	"scripts": {
 		"postinstall": "cd excalidraw && yarn",
 		"start:excalidraw": "cd excalidraw && yarn start",
