@@ -3,6 +3,18 @@
 	"displayName": "vscode-excalidraw",
 	"description": "excalidraw",
 	"version": "0.0.1",
+
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/jkchao/vscode-excalidraw.git"
+	  },
+	"author": "jkchao",
+	"license": "ISC",
+	"bugs": {
+	"url": "https://github.com/jkchao/vscode-excalidraw/issues"
+	},
+	"homepage": "https://github.com/jkchao/vscode-excalidraw#readme",
+
 	"engines": {
 		"vscode": "^1.45.0"
 	},
@@ -22,6 +34,9 @@
 		]
 	},
 	"scripts": {
+		"postinstall": "cd excalidraw && yarn",
+		"start:excalidraw": "cd excalidraw && yarn start",
+		"build:excalidraw": "cd excalidraw && yarn build",
 		"vscode:prepublish": "yarn run compile",
 		"compile": "tsc -p ./",
 		"lint": "eslint src --ext ts",
