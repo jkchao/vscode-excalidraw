@@ -16,10 +16,22 @@
 	"contributes": {
 		"menus": {
 			"commandPalette": [{
-				"command": "vscode-excalidraw.helloWorld",
+				"command": "excalidraw.openWebView",
 				"when": "resourceExtname == .excalidraw"
 			}]
-		}
+		},
+		"commands": [
+			{
+				"command": "catCoding.start",
+				"title": "Start new cat coding session",
+				"category": "Cat Coding"
+			},
+			{
+				"command": "excalidraw.openWebView",
+				"title": "openWebView",
+				"category": "excalidraw"
+			}
+		]
 	},
 	"engines": {
 		"vscode": "^1.45.0"
@@ -28,7 +40,8 @@
 		"Other"
 	],
 	"activationEvents": [
-        "onCommand:vscode-excalidraw.helloWorld"
+        "onCommand:excalidraw.openWebView",
+		"onCommand:catCoding.start"
 	],
 	"main": "./out/extension.js",
 	"scripts": {
