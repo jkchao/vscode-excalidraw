@@ -85,8 +85,8 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
         
         </style>
 
-        // <link href="${this.buildPath}/FG_Virgil.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
-        // <link href="${this.buildPath}/Cascadia.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+        <link href="${this.buildPath}/FG_Virgil.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+        <link href="${this.buildPath}/Cascadia.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
         
         <link rel="stylesheet" type="text/css" href="${styleScriptOnDisk}">
         <style>
@@ -129,11 +129,18 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
 
             const message = event.data; // The JSON data our extension sent
 
+            const data = message.data;
+
             switch (message.command) {
                 case 'loadLocalData':
-                    initData = message.data;
-                    initLocalStorage();
-                    initScript();
+                    try {
+                        initData = JSON.parse(message.data);
+                        initLocalStorage();
+                        initScript();
+                    } catch (error) {
+                        throw new Error(error);
+                    }
+
                     break;
             }
         });
@@ -149,8 +156,6 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
           const bridgedLocalStorage = {
             getItem: function (key) {
               log("localStorage: get " + key);
-              console.log('====');
-              console.log(initData);
               
               let result;
 
@@ -169,7 +174,9 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
             },
             setItem: function (key, val) {
               log("localStorage: set " + key + " to " + val);
-
+            
+              // TODO, now only excalidraw
+              // hava some othe key, forExample excalidraw-state
               if (key === 'excalidraw') {
                 vscode.postMessage({
                     command: 'update',
@@ -208,7 +215,6 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
 
             document.body.appendChild(fragment);
         }
-  
         </script>
 
     </head>
@@ -220,24 +226,14 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
     </html>`;
     }
 
-    public async resolveCustomTextEditor(document: vscode.TextDocument, webviewPanel: vscode.WebviewPanel) {
+    public resolveCustomTextEditor(document: vscode.TextDocument, webviewPanel: vscode.WebviewPanel) {
         webviewPanel.webview.options = {
             enableScripts: true
         };
 
-        const fileContent = await vscode.workspace.fs.readFile(document.uri);
-
-        try {
-            let parseContent = JSON.parse(fileContent.toString());
-            if (parseContent) {
-                // init data to extension
-                webviewPanel.webview.postMessage({ command: 'loadLocalData', data: parseContent });
-            }
-        } catch (error) {
-            vscode.window.showErrorMessage(error);
-        }
-
         webviewPanel.webview.html = this.createWebViewContent();
+
+        this.postFileContentToWebView(document, webviewPanel);
 
         webviewPanel.onDidDispose(() => {
             // ..
@@ -250,5 +246,14 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
                     return;
             }
         });
+    }
+
+    public async postFileContentToWebView(document: vscode.TextDocument, webviewPanel: vscode.WebviewPanel) {
+        const fileContent = await vscode.workspace.fs.readFile(document.uri);
+
+        if (fileContent) {
+            // init data to extension
+            webviewPanel.webview.postMessage({ command: 'loadLocalData', data: fileContent.toString() });
+        }
     }
 }
