@@ -38,9 +38,8 @@
 	"main": "./dist/extension.js",
 	"scripts": {
 		"postinstall": "cd excalidraw && yarn",
-		"start:excalidraw": "cd excalidraw && yarn start",
 		"build:excalidraw": "cd excalidraw && yarn build",
-		"vscode:prepublish": "yarn run compile",
+		"vscode:prepublish": "webpack --mode production",
 		"webpack": "webpack --mode development",
 		"webpack-dev": "webpack --mode development --watch",
 		"compile": "tsc -p ./",
@@ -68,6 +67,7 @@
 		"@typescript-eslint/parser": "^2.30.0",
 		"eslint": "^6.8.0",
 		"glob": "^7.1.6",
+		"html-loader": "^1.1.0",
 		"husky": ">=4",
 		"lint-staged": ">=10",
 		"mocha": "^7.1.2",

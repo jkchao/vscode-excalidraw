@@ -10,7 +10,8 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
         const provider = new ExcalidrawEditorProvider(context);
         const providerRegistration = vscode.window.registerCustomEditorProvider(
             ExcalidrawEditorProvider.viewType,
-            provider
+            provider,
+            { webviewOptions: { retainContextWhenHidden: true } }
         );
         return providerRegistration;
     }
