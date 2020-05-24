@@ -1,6 +1,6 @@
 {
-	"name": "vscode-excalidraw",
-	"displayName": "vscode-excalidraw",
+	"name": "vscode-excalidraw-plugin",
+	"displayName": "vscode-excalidraw-plugin",
 	"description": "excalidraw",
 	"version": "0.0.1",
 	"repository": {
