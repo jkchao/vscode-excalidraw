@@ -1,70 +1,69 @@
-import * as vscode from 'vscode';
-import { join } from 'path';
+import * as vscode from "vscode";
+import { join } from "path";
 
 export class ExcalidrawEditorProvider implements vscode.CustomExecution {
-
-	public static register(context: vscode.ExtensionContext): vscode.Disposable { 
-		const provider = new ExcalidrawEditorProvider(context);
-		const providerRegistration = vscode.window.registerCustomEditorProvider(ExcalidrawEditorProvider.viewType, provider);
-		return providerRegistration;
-	}
-
-  private static readonly viewType = 'excalidraw.openEditor';
-  private buildPath: string;
-  constructor(
-    private context: vscode.ExtensionContext
-  ) {
-    this.buildPath = join(context.extensionPath, 'excalidraw', 'build');
-  }
-
-  private readFileOnDisk(path: string) {
-    return vscode.Uri.file(join(this.buildPath, path)).with({
-      scheme: 'vscode-resource'
-    });
-  }
-
-  public resolveCustomTextEditor (
-		document: vscode.TextDocument,
-		webviewPanel: vscode.WebviewPanel,
-  ) {
-		webviewPanel.webview.options = {
-			enableScripts: true,
-		};
-    webviewPanel.webview.html = this.createWebViewContent();
-
-
-		function updateWebview() {
-			webviewPanel.webview.postMessage({
-				type: 'update',
-				text: document.getText(),
-			});
-		}
-
-    updateWebview();
-  }
-
-  public createWebViewContent() {
-    // script
-    const manifest = require(`${this.buildPath}/asset-manifest.json`);
-    console.log(manifest);
-    const mainScript = manifest.files['main.js'];
-    const mainStyle = manifest.files['main.css'];
-    const runtimeScript = manifest.files['runtime-main.js'];
-    // chunk
-    const chunkScript = [];
-    for (const key in manifest.files) {
-      if (key.endsWith('.chunk.js') && manifest.files.hasOwnProperty(key)) {
-        // finding their paths on the disk
-        const chunk = this.readFileOnDisk(manifest.files[key]);
-        chunkScript.push(chunk);
-      }
+    public static register(context: vscode.ExtensionContext): vscode.Disposable {
+        const provider = new ExcalidrawEditorProvider(context);
+        const providerRegistration = vscode.window.registerCustomEditorProvider(
+            ExcalidrawEditorProvider.viewType,
+            provider
+        );
+        return providerRegistration;
     }
 
-    const runtimeScriptOnDisk = this.readFileOnDisk(runtimeScript);
-    const mainScriptOnDisk = this.readFileOnDisk(mainScript);
-    const styleScriptOnDisk = this.readFileOnDisk(mainStyle);
+    private static readonly viewType = "excalidraw.openEditor";
+    private buildPath: string;
 
-    return `<!DOCTYPE html>
+    constructor(private context: vscode.ExtensionContext) {
+        this.buildPath = join(context.extensionPath, "excalidraw", "build");
+    }
+
+    private readFileOnDisk(path: string) {
+        return vscode.Uri.file(join(this.buildPath, path)).with({
+            scheme: "vscode-resource",
+        });
+    }
+    private updateExcalidrawContent(
+        document: vscode.TextDocument,
+        data: string
+    ) {
+
+        // https://github.com/excalidraw/excalidraw/blob/c427aa3cce801bef4dd9107e1044d3a4f61a201e/src/data/json.ts#L12
+        const elements = JSON.parse(data);
+
+        // TODO AppState, viewBackgroundColor
+        const result = JSON.stringify({
+            type: 'excalidraw',
+            elements: elements.filter((element: any) => !element.isDeleted),
+            appState: {
+                viewBackgroundColor: '#ffffff'
+            }
+        });
+
+        const buf = Buffer.from(result);
+        vscode.workspace.fs.writeFile(document.uri, buf);
+    }
+
+    private createWebViewContent() {
+        // script
+        const manifest = require(`${this.buildPath}/asset-manifest.json`);
+        const mainScript = manifest.files["main.js"];
+        const mainStyle = manifest.files["main.css"];
+        const runtimeScript = manifest.files["runtime-main.js"];
+        // chunk
+        const chunkScript = [];
+        for (const key in manifest.files) {
+            if (key.endsWith(".chunk.js") && manifest.files.hasOwnProperty(key)) {
+                const chunk = this.readFileOnDisk(manifest.files[key]);
+                chunkScript.push(chunk);
+            }
+        }
+
+        const runtimeScriptOnDisk = this.readFileOnDisk(runtimeScript);
+        const mainScriptOnDisk = this.readFileOnDisk(mainScript);
+        const styleScriptOnDisk = this.readFileOnDisk(mainStyle);
+
+        return `<!DOCTYPE html>
     <html lang="en">
     <head>
         <meta charset="UTF-8">
@@ -72,7 +71,7 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
         <title>ExcaliDraw</title>
         
         <link rel="stylesheet" href="${this.context.extensionPath}/fonts.css" />
-
+        <!-- TODO font-family -->
         <style>
           /* http://www.eaglefonts.com/fg-virgil-ttf-131249.htm */
           @font-face {
@@ -90,8 +89,12 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
         
         </style>
 
-        // <link href="${this.buildPath}/FG_Virgil.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
-        // <link href="${this.buildPath}/Cascadia.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+        // <link href="${
+            this.buildPath
+            }/FG_Virgil.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+        // <link href="${
+            this.buildPath
+            }/Cascadia.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
         
         <link rel="stylesheet" type="text/css" href="${styleScriptOnDisk}">
         <style>
@@ -133,22 +136,72 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
           <div class="LoadingMessage"><span>Loading scene...</span></div>
       </div>
       <script>
-        // https://github.com/Microsoft/vscode/issues/48464
-        Object.defineProperty(document, 'cookie', {
-          get: () => '',
-          set: () => ''
-        });
-        Object.defineProperty(window, 'localStorage', {
-          get: () => '',
-          set: (value) => {
-            conosle.log(value)
-          }
-        });
+      (function() {
+          // https://github.com/Microsoft/vscode/issues/48464
+          Object.defineProperty(document, 'cookie', { value: '' });
+
+          const vscode = acquireVsCodeApi();
+          console.log(vscode)
+          
+          const storage = {};
+          const log = console.log
+          const bridgedLocalStorage = {
+            getItem: function (key) {
+              log("localStorage: get " + key);
+              return storage[key];
+            },
+            setItem: function (key, val) {
+              log("localStorage: set " + key + " to " + val);
+
+              if (key === 'excalidraw') {
+                vscode.postMessage({
+                    command: 'update',
+                    data: val
+                  });
+              }
+              storage[key] = val;
+            },
+            removeItem: function (key) {
+              log("localStorage: remove " + key);
+              delete storage[key];
+            },
+          };
+
+          Object.defineProperty(window, 'localStorage', {
+            value: bridgedLocalStorage,
+          });
+      }())
+
       </script>
       <script src="${runtimeScriptOnDisk}"></script>
-      ${chunkScript.map((item: vscode.Uri) => `<script src="${item}"></script>`)}
+      ${chunkScript.map(
+                (item: vscode.Uri) => `<script src="${item}"></script>`
+            )}
       <script src="${mainScriptOnDisk}"></script>
     </body>
     </html>`;
-  }
+    }
+
+    public resolveCustomTextEditor(
+        document: vscode.TextDocument,
+        webviewPanel: vscode.WebviewPanel
+    ) {
+        webviewPanel.webview.options = {
+            enableScripts: true,
+        };
+        webviewPanel.webview.html = this.createWebViewContent();
+
+        webviewPanel.onDidDispose(() => {
+            // ..
+        });
+
+        webviewPanel.webview.onDidReceiveMessage((e) => {
+            switch (e.command) {
+                case "update":
+                    this.updateExcalidrawContent(document, e.data);
+                    return;
+            }
+        });
+    }
+
 }
