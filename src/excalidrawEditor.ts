@@ -1,4 +1,4 @@
-import * as vscode from 'vscode';
+ import * as vscode from 'vscode';
 import { join } from 'path';
 
 export class ExcalidrawEditorProvider implements vscode.CustomExecution {
@@ -121,26 +121,51 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
           white-space: nowrap
       }
         </style>
-        
-    </head>
-    <body>
-      <div id="root">
-          <div class="LoadingMessage"><span>Loading scene...</span></div>
-      </div>
-      <script>
-      (function() {
-          // https://github.com/Microsoft/vscode/issues/48464
-          Object.defineProperty(document, 'cookie', { value: '' });
 
+        <script>
+        let initData = {};
+  
+        window.addEventListener('message', event => {
+
+            const message = event.data; // The JSON data our extension sent
+
+            switch (message.command) {
+                case 'loadLocalData':
+                    initData = message.data;
+                    initLocalStorage();
+                    initScript();
+                    break;
+            }
+        });
+
+      // https://github.com/Microsoft/vscode/issues/48464
+      Object.defineProperty(document, 'cookie', { value: '' });
+
+      function initLocalStorage() {
           const vscode = acquireVsCodeApi();
-          console.log(vscode)
-          
+      
           const storage = {};
           const log = console.log
           const bridgedLocalStorage = {
             getItem: function (key) {
               log("localStorage: get " + key);
-              return storage[key];
+              console.log('====');
+              console.log(initData);
+              
+              let result;
+
+              switch (key) {
+                    case 'excalidraw':
+                        result = initData.elements;
+                        break;
+                    case 'excalidraw-state':
+                        result = initData.appState;
+                        break;
+                    default:
+                        result = storage[key];
+                        break;
+              }
+              return JSON.stringify(result);
             },
             setItem: function (key, val) {
               log("localStorage: set " + key + " to " + val);
@@ -154,28 +179,64 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
               storage[key] = val;
             },
             removeItem: function (key) {
-              log("localStorage: remove " + key);
-              delete storage[key];
+                log("localStorage: remove " + key);
+                delete storage[key];
             },
           };
 
           Object.defineProperty(window, 'localStorage', {
             value: bridgedLocalStorage,
           });
-      }())
+      }
 
-      </script>
-      <script src="${runtimeScriptOnDisk}"></script>
-      ${chunkScript.map((item: vscode.Uri) => `<script src="${item}"></script>`)}
-      <script src="${mainScriptOnDisk}"></script>
+        function initScript() {
+            const fragment = document.createDocumentFragment();
+            const runtimeTag = document.createElement('script');
+            const mainScriptTag = document.createElement('script');
+            const chunkScript = '${chunkScript}';
+            runtimeTag.src = '${runtimeScriptOnDisk}';
+            mainScriptTag.src = '${mainScriptOnDisk}';
+
+            fragment.appendChild(runtimeTag);
+            
+            chunkScript.split(',').forEach(item => {
+                const tag = document.createElement('script');
+                tag.src = item;
+                fragment.appendChild(tag);
+            });
+            fragment.appendChild(mainScriptTag);
+
+            document.body.appendChild(fragment);
+        }
+  
+        </script>
+
+    </head>
+    <body>
+      <div id="root">
+          <div class="LoadingMessage"><span>Loading scene...</span></div>
+      </div>
     </body>
     </html>`;
     }
 
-    public resolveCustomTextEditor(document: vscode.TextDocument, webviewPanel: vscode.WebviewPanel) {
+    public async resolveCustomTextEditor(document: vscode.TextDocument, webviewPanel: vscode.WebviewPanel) {
         webviewPanel.webview.options = {
             enableScripts: true
         };
+
+        const fileContent = await vscode.workspace.fs.readFile(document.uri);
+
+        try {
+            let parseContent = JSON.parse(fileContent.toString());
+            if (parseContent) {
+                // init data to extension
+                webviewPanel.webview.postMessage({ command: 'loadLocalData', data: parseContent });
+            }
+        } catch (error) {
+            vscode.window.showErrorMessage(error);
+        }
+
         webviewPanel.webview.html = this.createWebViewContent();
 
         webviewPanel.onDidDispose(() => {
