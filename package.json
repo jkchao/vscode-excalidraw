@@ -6,20 +6,21 @@
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/jkchao/vscode-excalidraw.git"
-	  },
+	},
 	"author": "jkchao",
 	"license": "ISC",
 	"bugs": {
-	"url": "https://github.com/jkchao/vscode-excalidraw/issues"
+		"url": "https://github.com/jkchao/vscode-excalidraw/issues"
 	},
 	"homepage": "https://github.com/jkchao/vscode-excalidraw#readme",
 	"contributes": {
-
 		"menus": {
-			"commandPalette": [{
-				"command": "excalidraw.openWebView",
-				"when": "resourceExtname == .excalidraw"
-			}]
+			"commandPalette": [
+				{
+					"command": "excalidraw.openWebView",
+					"when": "resourceExtname == .excalidraw"
+				}
+			]
 		},
 		"commands": [
 			{
@@ -28,7 +29,6 @@
 				"category": "excalidraw"
 			}
 		],
-
 		"customEditors": [
 			{
 				"viewType": "excalidraw.openEditor",
@@ -51,6 +51,12 @@
 		"onCustomEditor:excalidraw.openEditor",
 		"onCommand:excalidraw.openWebView"
 	],
+	"lint-staged": {
+		"*.{js,json,ts,css,md}": [
+			"prettier --write",
+			"git add"
+		]
+	},
 	"main": "./out/extension.js",
 	"scripts": {
 		"postinstall": "cd excalidraw && yarn",
@@ -61,18 +67,22 @@
 		"lint": "eslint src --ext ts",
 		"watch": "tsc -watch -p ./",
 		"pretest": "yarn run compile && yarn run lint",
-		"test": "node ./out/test/runTest.js"
+		"test": "node ./out/test/runTest.js",
+		"precommit": "lint-staged"
 	},
 	"devDependencies": {
-		"@types/vscode": "^1.45.0",
 		"@types/glob": "^7.1.1",
 		"@types/mocha": "^7.0.2",
 		"@types/node": "^13.11.0",
-		"eslint": "^6.8.0",
-		"@typescript-eslint/parser": "^2.30.0",
+		"@types/vscode": "^1.45.0",
 		"@typescript-eslint/eslint-plugin": "^2.30.0",
+		"@typescript-eslint/parser": "^2.30.0",
+		"eslint": "^6.8.0",
 		"glob": "^7.1.6",
+		"husky": "^4.2.5",
+		"lint-staged": "^10.2.6",
 		"mocha": "^7.1.2",
+		"prettier": "^2.0.5",
 		"typescript": "^3.8.3",
 		"vscode-test": "^1.3.0"
 	}
