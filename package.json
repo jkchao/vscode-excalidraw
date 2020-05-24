@@ -51,12 +51,6 @@
 		"onCustomEditor:excalidraw.openEditor",
 		"onCommand:excalidraw.openWebView"
 	],
-	"lint-staged": {
-		"*.{js,json,ts,css,md}": [
-			"prettier --write",
-			"git add"
-		]
-	},
 	"main": "./out/extension.js",
 	"scripts": {
 		"postinstall": "cd excalidraw && yarn",
@@ -68,8 +62,14 @@
 		"watch": "tsc -watch -p ./",
 		"pretest": "yarn run compile && yarn run lint",
 		"test": "node ./out/test/runTest.js",
-		"precommit": "lint-staged"
+		"precommit": "lint-staged",
 	},
+	"lint-staged": {
+		"*.{js,json,ts,css,md.vue}": [
+		  "prettier --write",
+		  "git add"
+		]
+	  },
 	"devDependencies": {
 		"@types/glob": "^7.1.1",
 		"@types/mocha": "^7.0.2",
