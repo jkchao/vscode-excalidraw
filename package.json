@@ -14,6 +14,7 @@
 	},
 	"homepage": "https://github.com/jkchao/vscode-excalidraw#readme",
 	"contributes": {
+
 		"menus": {
 			"commandPalette": [{
 				"command": "excalidraw.openWebView",
@@ -22,14 +23,21 @@
 		},
 		"commands": [
 			{
-				"command": "catCoding.start",
-				"title": "Start new cat coding session",
-				"category": "Cat Coding"
-			},
-			{
 				"command": "excalidraw.openWebView",
 				"title": "openWebView",
 				"category": "excalidraw"
+			}
+		],
+
+		"customEditors": [
+			{
+				"viewType": "excalidraw.openEditor",
+				"displayName": "excalidraw",
+				"selector": [
+					{
+						"filenamePattern": "*.excalidraw"
+					}
+				]
 			}
 		]
 	},
@@ -40,8 +48,8 @@
 		"Other"
 	],
 	"activationEvents": [
-        "onCommand:excalidraw.openWebView",
-		"onCommand:catCoding.start"
+		"onCustomEditor:excalidraw.openEditor",
+		"onCommand:excalidraw.openWebView"
 	],
 	"main": "./out/extension.js",
 	"scripts": {
