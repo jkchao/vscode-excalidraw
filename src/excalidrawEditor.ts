@@ -1,5 +1,5 @@
-import * as vscode from "vscode";
-import { join } from "path";
+import * as vscode from 'vscode';
+import { join } from 'path';
 
 export class ExcalidrawEditorProvider implements vscode.CustomExecution {
     public static register(context: vscode.ExtensionContext): vscode.Disposable {
@@ -11,23 +11,19 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
         return providerRegistration;
     }
 
-    private static readonly viewType = "excalidraw.openEditor";
+    private static readonly viewType = 'excalidraw.openEditor';
     private buildPath: string;
 
     constructor(private context: vscode.ExtensionContext) {
-        this.buildPath = join(context.extensionPath, "excalidraw", "build");
+        this.buildPath = join(context.extensionPath, 'excalidraw', 'build');
     }
 
     private readFileOnDisk(path: string) {
         return vscode.Uri.file(join(this.buildPath, path)).with({
-            scheme: "vscode-resource",
+            scheme: 'vscode-resource'
         });
     }
-    private updateExcalidrawContent(
-        document: vscode.TextDocument,
-        data: string
-    ) {
-
+    private updateExcalidrawContent(document: vscode.TextDocument, data: string) {
         // https://github.com/excalidraw/excalidraw/blob/c427aa3cce801bef4dd9107e1044d3a4f61a201e/src/data/json.ts#L12
         const elements = JSON.parse(data);
 
@@ -47,13 +43,13 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
     private createWebViewContent() {
         // script
         const manifest = require(`${this.buildPath}/asset-manifest.json`);
-        const mainScript = manifest.files["main.js"];
-        const mainStyle = manifest.files["main.css"];
-        const runtimeScript = manifest.files["runtime-main.js"];
+        const mainScript = manifest.files['main.js'];
+        const mainStyle = manifest.files['main.css'];
+        const runtimeScript = manifest.files['runtime-main.js'];
         // chunk
         const chunkScript = [];
         for (const key in manifest.files) {
-            if (key.endsWith(".chunk.js") && manifest.files.hasOwnProperty(key)) {
+            if (key.endsWith('.chunk.js') && manifest.files.hasOwnProperty(key)) {
                 const chunk = this.readFileOnDisk(manifest.files[key]);
                 chunkScript.push(chunk);
             }
@@ -89,12 +85,8 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
         
         </style>
 
-        // <link href="${
-            this.buildPath
-            }/FG_Virgil.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
-        // <link href="${
-            this.buildPath
-            }/Cascadia.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+        // <link href="${this.buildPath}/FG_Virgil.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+        // <link href="${this.buildPath}/Cascadia.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
         
         <link rel="stylesheet" type="text/css" href="${styleScriptOnDisk}">
         <style>
@@ -174,20 +166,15 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
 
       </script>
       <script src="${runtimeScriptOnDisk}"></script>
-      ${chunkScript.map(
-                (item: vscode.Uri) => `<script src="${item}"></script>`
-            )}
+      ${chunkScript.map((item: vscode.Uri) => `<script src="${item}"></script>`)}
       <script src="${mainScriptOnDisk}"></script>
     </body>
     </html>`;
     }
 
-    public resolveCustomTextEditor(
-        document: vscode.TextDocument,
-        webviewPanel: vscode.WebviewPanel
-    ) {
+    public resolveCustomTextEditor(document: vscode.TextDocument, webviewPanel: vscode.WebviewPanel) {
         webviewPanel.webview.options = {
-            enableScripts: true,
+            enableScripts: true
         };
         webviewPanel.webview.html = this.createWebViewContent();
 
@@ -195,13 +182,12 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
             // ..
         });
 
-        webviewPanel.webview.onDidReceiveMessage((e) => {
+        webviewPanel.webview.onDidReceiveMessage(e => {
             switch (e.command) {
-                case "update":
+                case 'update':
                     this.updateExcalidrawContent(document, e.data);
                     return;
             }
         });
     }
-
 }
