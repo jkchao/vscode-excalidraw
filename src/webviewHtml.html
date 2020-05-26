@@ -160,14 +160,30 @@
             // rewrite command/ctrl + s
             const isDarwin = /Mac|iPod|iPhone|iPad/.test(window.navigator.platform);
             const CTRL_OR_CMD = isDarwin ? "metaKey" : "ctrlKey";
-            window.addEventListener('keydown', e => {
+
+            function withHookBefore(originFn, hookFn) {
+                return function() {
+                    if (hookFn.apply(this, arguments) === false) {
+                        return false;
+                    }
+                    return originFn;
+                }
+            }
+
+            function customerFunction(event) {
+                console.log('evnet ==>', event);
                 if (event.key === "s" && event[CTRL_OR_CMD]) {
-                    console.log('Intercepting addListener', args);
-                    console.log('save');
+                    console.log('Intercepting addListener', event);
                     return false;
                 }
-                // console.log(e);
-            })
+
+                return true;
+            };
+
+            document.prototype.addEventListener = withHookBefore(
+                document.prototype.addEventListener,
+                customerFunction
+            );
 
         </script>
     </body>
