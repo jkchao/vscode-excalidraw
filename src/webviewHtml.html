@@ -56,6 +56,18 @@
                 clip: rect(1px, 1px, 1px, 1px);
                 white-space: nowrap;
             }
+
+            .Stack_horizontal {
+                justify-content: start !important;
+            }
+
+            /* hidden open save and share */
+            .App-menu_top >.Stack .Stack_horizontal > .ToolIcon_type_button:nth-child(1),
+            .App-menu_top >.Stack .Stack_horizontal > .ToolIcon_type_button:nth-child(2),
+            .App-menu_top >.Stack .Stack_horizontal > .ToolIcon_type_button:nth-child(5) {
+                display: none;
+            }
+
         </style>
     </head>
     <body>
@@ -64,127 +76,126 @@
         </div>
 
         <script>
-            let initData = {};
+            (() => {
+                let initData = {};
 
-            // https://github.com/Microsoft/vscode/issues/48464
-            Object.defineProperty(document, 'cookie', { value: '' });
+                // https://github.com/Microsoft/vscode/issues/48464
+                Object.defineProperty(document, 'cookie', { value: '' });
 
-            // message from vscode
-            window.addEventListener('message', event => {
-                const message = event.data; // The JSON data our extension sent
+                // message from vscode
+                window.addEventListener('message', event => {
+                    const message = event.data; // The JSON data our extension sent
 
-                const data = message.data;
+                    const data = message.data;
 
-                switch (message.command) {
-                    case 'loadLocalData':
-                        try {
-                            initData = JSON.parse(message.data);
-                            initLocalStorage();
-                            initScript();
-                        } catch (error) {
-                            throw new Error(error);
-                        }
+                    switch (message.command) {
+                        case 'loadLocalData':
+                            try {
+                                initData = JSON.parse(message.data);
+                                initLocalStorage();
+                                initScript();
+                            } catch (error) {
+                                throw new Error(error);
+                            }
 
-                        break;
-                }
-            });
-
-            function initLocalStorage() {
-                const vscode = acquireVsCodeApi();
-
-                const storage = {};
-                const log = console.log;
-                const bridgedLocalStorage = {
-                    getItem: function (key) {
-                        log('localStorage: get ' + key);
-
-                        let result;
-
-                        switch (key) {
-                            case 'excalidraw':
-                                result = initData.elements;
-                                break;
-                            case 'excalidraw-state':
-                                result = initData.appState;
-                                break;
-                            default:
-                                result = storage[key];
-                                break;
-                        }
-                        return JSON.stringify(result);
-                    },
-                    setItem: function (key, val) {
-                        log('localStorage: set ' + key + ' to ' + val);
-
-                        // TODO, now only excalidraw
-                        // has some othe key, eg excalidraw-state
-                        if (key === 'excalidraw') {
-                            vscode.postMessage({
-                                command: 'update',
-                                data: val
-                            });
-                        }
-                        storage[key] = val;
-                    },
-                    removeItem: function (key) {
-                        log('localStorage: remove ' + key);
-                        delete storage[key];
+                            break;
                     }
+                });
+
+                function initLocalStorage() {
+                    const vscode = acquireVsCodeApi();
+
+                    const storage = {};
+                    const log = console.log;
+                    const bridgedLocalStorage = {
+                        getItem: function (key) {
+                            log('localStorage: get ' + key);
+
+                            let result;
+
+                            switch (key) {
+                                case 'excalidraw':
+                                    result = initData.elements;
+                                    break;
+                                case 'excalidraw-state':
+                                    result = initData.appState;
+                                    break;
+                                default:
+                                    result = storage[key];
+                                    break;
+                            }
+                            return JSON.stringify(result);
+                        },
+                        setItem: function (key, val) {
+                            log('localStorage: set ' + key + ' to ' + val);
+
+                            // TODO, now only excalidraw
+                            // has some othe key, eg excalidraw-state
+                            if (key === 'excalidraw') {
+                                vscode.postMessage({
+                                    command: 'update',
+                                    data: val
+                                });
+                            }
+                            storage[key] = val;
+                        },
+                        removeItem: function (key) {
+                            log('localStorage: remove ' + key);
+                            delete storage[key];
+                        }
+                    };
+
+                    Object.defineProperty(window, 'localStorage', {
+                        value: bridgedLocalStorage
+                    });
+                }
+
+                function initScript() {
+                    const fragment = document.createDocumentFragment();
+                    const runtimeTag = document.createElement('script');
+                    const mainScriptTag = document.createElement('script');
+                    const chunkScript = '{{chunkScript}}';
+                    runtimeTag.src = '{{runtimeScriptOnDisk}}';
+                    mainScriptTag.src = '{{mainScriptOnDisk}}';
+
+                    fragment.appendChild(runtimeTag);
+
+                    chunkScript.split(',').forEach(item => {
+                        const tag = document.createElement('script');
+                        tag.src = item;
+                        fragment.appendChild(tag);
+                    });
+                    fragment.appendChild(mainScriptTag);
+
+                    document.body.appendChild(fragment);
                 };
 
-                Object.defineProperty(window, 'localStorage', {
-                    value: bridgedLocalStorage
-                });
-            }
+                // rewrite command/ctrl + s
+                const isDarwin = /Mac|iPod|iPhone|iPad/.test(window.navigator.platform);
+                const CTRL_OR_CMD = isDarwin ? 'metaKey' : 'ctrlKey';
 
-            function initScript() {
-                const fragment = document.createDocumentFragment();
-                const runtimeTag = document.createElement('script');
-                const mainScriptTag = document.createElement('script');
-                const chunkScript = '{{chunkScript}}';
-                runtimeTag.src = '{{runtimeScriptOnDisk}}';
-                mainScriptTag.src = '{{mainScriptOnDisk}}';
-
-                fragment.appendChild(runtimeTag);
-
-                chunkScript.split(',').forEach(item => {
-                    const tag = document.createElement('script');
-                    tag.src = item;
-                    fragment.appendChild(tag);
-                });
-                fragment.appendChild(mainScriptTag);
-
-                document.body.appendChild(fragment);
-            }
-
-            // rewrite command/ctrl + s
-            const isDarwin = /Mac|iPod|iPhone|iPad/.test(window.navigator.platform);
-            const CTRL_OR_CMD = isDarwin ? "metaKey" : "ctrlKey";
-
-            function withHookBefore(originFn, hookFn) {
-                return function() {
-                    if (hookFn.apply(this, arguments) === false) {
-                        return false;
+				function patchFn(clazz, fnName, fnFactory) {
+                    var old = clazz[fnName];
+					clazz[fnName] = fnFactory(old);
+                };
+                
+                patchFn(document, 'addEventListener', old => {
+                    return function(...args) {
+                        const [eventName, oldHandler] = args;
+                        console.log("Intercepting addListener", args);
+                        if (eventName === 'keydown') {
+                            args[1] = e => {
+                                if (e.key === "s" && e[CTRL_OR_CMD]) {
+                                    console.log('command/ctrl + s');
+                                    return false;
+                                }
+                                return oldHandler(e);
+                            }
+                        }
+                        return old.apply(this, args);
                     }
-                    return originFn;
-                }
-            }
-
-            function customerFunction(event) {
-                console.log('evnet ==>', event);
-                if (event.key === "s" && event[CTRL_OR_CMD]) {
-                    console.log('Intercepting addListener', event);
-                    return false;
-                }
-
-                return true;
-            };
-
-            document.prototype.addEventListener = withHookBefore(
-                document.prototype.addEventListener,
-                customerFunction
-            );
-
+                })
+            })();
         </script>
     </body>
 </html>
