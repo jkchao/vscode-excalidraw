@@ -1,12 +1,14 @@
 {
 	"name": "vscode-excalidraw-plugin",
-	"displayName": "vscode-excalidraw-plugin",
-	"description": "excalidraw",
+	"displayName": "Excalidraw VSCode Plugin",
+	"description": "excalidraw vscode plugin",
 	"version": "0.0.1",
+	"publisher": "jkchao",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/jkchao/vscode-excalidraw.git"
 	},
+	"icon": "images/logo.png",
 	"author": "jkchao",
 	"license": "ISC",
 	"bugs": {

@@ -2,6 +2,10 @@
 
 The [Excalidraw](https://excalidraw.com/) plugin in VSCode
 
+## install
+
+[vscode-excalidraw-plugin](https://marketplace.visualstudio.com/items?itemName=jkchao.)
+
 ## Features
 
 - Edit `.excalidraw` file in editor
@@ -9,9 +13,8 @@ The [Excalidraw](https://excalidraw.com/) plugin in VSCode
 
 ## DEMO
 
+![demo1](./images/demo01.png)
+
+
+
 <!-- TODO -->
-
-## TODO
-
-<!-- TODO -->
-
