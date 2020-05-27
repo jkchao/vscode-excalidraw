@@ -88,10 +88,12 @@
 
                     const data = message.data;
 
+                    console.log('message ===>', message);
+
                     switch (message.command) {
                         case 'loadLocalData':
                             try {
-                                initData = JSON.parse(message.data);
+                                initData = JSON.parse(message.data || '{}');
                                 initLocalStorage();
                                 initScript();
                             } catch (error) {

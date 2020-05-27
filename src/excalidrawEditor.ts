@@ -28,7 +28,7 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
             scheme: 'vscode-resource'
         });
     }
-    private updateExcalidrawContent(document: vscode.TextDocument, data: string) {
+    private async updateExcalidrawContent(document: vscode.TextDocument, data: string) {
         // https://github.com/excalidraw/excalidraw/blob/c427aa3cce801bef4dd9107e1044d3a4f61a201e/src/data/json.ts#L12
         const elements = JSON.parse(data);
 
@@ -41,8 +41,26 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
             }
         });
 
-        const buf = Buffer.from(result);
-        vscode.workspace.fs.writeFile(document.uri, buf);
+        if (result === document.getText()) {
+            return false;
+        }
+
+        const workspaceEdit = new vscode.WorkspaceEdit();
+
+        workspaceEdit.replace(
+            document.uri,
+            new vscode.Range(0, 0, document.lineCount, 0),
+            result
+        );
+
+        try {
+            await vscode.workspace.applyEdit(workspaceEdit);
+        } catch (error) {
+            // ...
+        }
+
+        // const buf = Buffer.from(result);
+        // vscode.workspace.fs.writeFile(document.uri, buf);
     }
 
     private createWebViewContent(webview: vscode.Webview) {
