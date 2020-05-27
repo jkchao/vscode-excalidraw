@@ -4,7 +4,7 @@ The [Excalidraw](https://excalidraw.com/) plugin in VSCode
 
 ## install
 
-[vscode-excalidraw-plugin](https://marketplace.visualstudio.com/items?itemName=jkchao.)
+[vscode-excalidraw-plugin](https://marketplace.visualstudio.com/items?itemName=jkchao.vscode-excalidraw-plugin)
 
 ## Features
 
