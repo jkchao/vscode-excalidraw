@@ -13,8 +13,12 @@ The [Excalidraw](https://excalidraw.com/) plugin in VSCode
 
 ## DEMO
 
+### 1
+
 ![demo1](./images/demo01.png)
 
+### export PNG/SVG
 
+![demo2](./images/demo02.gif)
 
 <!-- TODO -->
