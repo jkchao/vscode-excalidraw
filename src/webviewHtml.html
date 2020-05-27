@@ -174,9 +174,9 @@
                 const isDarwin = /Mac|iPod|iPhone|iPad/.test(window.navigator.platform);
                 const CTRL_OR_CMD = isDarwin ? 'metaKey' : 'ctrlKey';
 
-				function patchFn(clazz, fnName, fnFactory) {
+                function patchFn(clazz, fnName, fnFactory) {
                     var old = clazz[fnName];
-					clazz[fnName] = fnFactory(old);
+                    clazz[fnName] = fnFactory(old);
                 };
                 
                 patchFn(document, 'addEventListener', old => {
