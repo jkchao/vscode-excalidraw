@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.0.4
+
+- Use the last Excalidraw
+
 ## 0.0.3
 
 - fix bug [#6](https://github.com/jkchao/vscode-excalidraw/issues/6)
