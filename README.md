@@ -1,4 +1,4 @@
-# vscode excalidraw plugin
+# Excalidraw VSCode Plugin
 
 The [Excalidraw](https://excalidraw.com/) plugin in VSCode
 
