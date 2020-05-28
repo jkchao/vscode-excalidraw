@@ -3,6 +3,7 @@
 ## 0.0.4
 
 - Use the last Excalidraw
+- Update logo
 
 ## 0.0.3
 
