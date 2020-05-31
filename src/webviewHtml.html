@@ -189,7 +189,7 @@
             function patchFn(originalFn) {
                 return function (...args) {
                     const [eventName, oldHandler] = args;
-                    console.log("Intercepting addListener", args);
+                    console.log(`Intercepting addListener`, args);
                     if (eventName === 'keydown') {
                         args[1] = e => {
                             if (e.key === "s" && e[CTRL_OR_CMD]) {
