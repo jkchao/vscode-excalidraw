@@ -31,6 +31,6 @@ The [Excalidraw](https://excalidraw.com/) plugin in VSCode
 
 There have many features in [Excalidraw](https://excalidraw.com/), but not implement in the plugin. For example the live collaboration.
 
-We are planning to implement these features, but we have some problems that not been resolved right now. For example in [stackoverflow](https://stackoverflow.com/questions/62102767/how-to-use-window-crypto-subtle-in-vscode-webview).
+We are planning to implement these features, but we have some problems that not been resolved right now. eg [stackoverflow](https://stackoverflow.com/questions/62102767/how-to-use-window-crypto-subtle-in-vscode-webview).
 
 So if there has any answer, The feature will be implemented.
