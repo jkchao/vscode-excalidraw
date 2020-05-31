@@ -1,212 +1,211 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>ExcaliDraw</title>
 
-        <link rel="stylesheet" href="{{extensionPath}}/fonts.css" />
-        <style>
-            /* http://www.eaglefonts.com/fg-virgil-ttf-131249.htm */
-            @font-face {
-                font-family: 'Virgil';
-                src: url('{{virgilFont}}');
-                font-display: swap;
-            }
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ExcaliDraw</title>
 
-            /* https://github.com/microsoft/cascadia-code */
-            @font-face {
-                font-family: 'Cascadia';
-                src: url('{{cascadiaFont}}');
-                font-display: swap;
-            }
-        </style>
+    <link rel="stylesheet" href="{{extensionPath}}/fonts.css" />
+    <style>
+        /* http://www.eaglefonts.com/fg-virgil-ttf-131249.htm */
+        @font-face {
+            font-family: 'Virgil';
+            src: url('{{virgilFont}}');
+            font-display: swap;
+        }
 
-        <link href="{{virgilFont}}" as="font" type="font/woff2" crossorigin="anonymous" />
-        <link href="{{cascadiaFont}}" as="font" type="font/woff2" crossorigin="anonymous" />
+        /* https://github.com/microsoft/cascadia-code */
+        @font-face {
+            font-family: 'Cascadia';
+            src: url('{{cascadiaFont}}');
+            font-display: swap;
+        }
+    </style>
 
-        <link rel="stylesheet" type="text/css" href="{{styleScriptOnDisk}}" />
-        <style>
-            .LoadingMessage {
-                position: fixed;
-                top: 0;
-                right: 0;
-                bottom: 0;
-                left: 0;
-                z-index: 999;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                pointer-events: none;
-            }
+    <link href="{{virgilFont}}" as="font" type="font/woff2" crossorigin="anonymous" />
+    <link href="{{cascadiaFont}}" as="font" type="font/woff2" crossorigin="anonymous" />
 
-            .LoadingMessage span {
-                background-color: rgba(255, 255, 255, 0.8);
-                border-radius: 5px;
-                padding: 0.8em 1.2em;
-                font-size: 1.3em;
-            }
+    <link rel="stylesheet" type="text/css" href="{{styleScriptOnDisk}}" />
+    <style>
+        .LoadingMessage {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
 
-            .visually-hidden {
-                position: absolute !important;
-                height: 1px;
-                width: 1px;
-                overflow: hidden;
-                clip: rect(1px 1px 1px 1px);
-                clip: rect(1px, 1px, 1px, 1px);
-                white-space: nowrap;
-            }
+        .LoadingMessage span {
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 5px;
+            padding: 0.8em 1.2em;
+            font-size: 1.3em;
+        }
 
-            .Stack_horizontal {
-                justify-content: start !important;
-            }
+        .visually-hidden {
+            position: absolute !important;
+            height: 1px;
+            width: 1px;
+            overflow: hidden;
+            clip: rect(1px 1px 1px 1px);
+            clip: rect(1px, 1px, 1px, 1px);
+            white-space: nowrap;
+        }
 
-            /* hidden open save and share */
-            .App-menu_top >.Stack .Stack_horizontal > .ToolIcon_type_button:nth-child(1),
-            .App-menu_top >.Stack .Stack_horizontal > .ToolIcon_type_button:nth-child(2),
-            .App-menu_top >.Stack .Stack_horizontal > .ToolIcon_type_button:nth-child(4),
-            .App-menu_top >.Stack .Stack_horizontal > .ToolIcon_type_button:nth-child(5) {
-                display: none;
-            }
+        .Stack_horizontal {
+            justify-content: start !important;
+        }
 
-        </style>
-    </head>
-    <body>
-        <div id="root">
-            <div class="LoadingMessage"><span>Loading scene...</span></div>
-        </div>
+        /* hidden open save and share */
+        .App-menu_top>.Stack .Stack_horizontal>.ToolIcon_type_button:nth-child(1),
+        .App-menu_top>.Stack .Stack_horizontal>.ToolIcon_type_button:nth-child(2),
+        .App-menu_top>.Stack .Stack_horizontal>.ToolIcon_type_button:nth-child(4),
+        .App-menu_top>.Stack .Stack_horizontal>.ToolIcon_type_button:nth-child(5) {
+            display: none;
+        }
+    </style>
+</head>
 
-        <script>
-            (() => {
-                let initData = {};
+<body>
+    <div id="root">
+        <div class="LoadingMessage"><span>Loading scene...</span></div>
+    </div>
 
-                // https://github.com/Microsoft/vscode/issues/48464
-                Object.defineProperty(document, 'cookie', { value: '' });
+    <script>
+        (() => {
+            let initData = {};
 
-                // message from vscode
-                window.addEventListener('message', event => {
-                    const message = event.data; // The JSON data our extension sent
+            // https://github.com/Microsoft/vscode/issues/48464
+            Object.defineProperty(document, 'cookie', { value: '' });
 
-                    const data = message.data;
+            // message from vscode
+            window.addEventListener('message', event => {
+                const message = event.data; // The JSON data our extension sent
 
-                    console.log('message ===>', message);
+                const data = message.data;
 
-                    switch (message.command) {
-                        case 'loadLocalData':
-                            try {
-                                initData = JSON.parse(message.data || '{}');
-                                initLocalStorage();
-                                initScript();
-                            } catch (error) {
-                                throw new Error(error);
-                            }
+                console.log('message ===>', message);
 
-                            break;
-                    }
-                });
-
-                function initLocalStorage() {
-                    const vscode = acquireVsCodeApi();
-
-                    const storage = {};
-                    const log = console.log;
-                    const bridgedLocalStorage = {
-                        getItem: function (key) {
-                            log('localStorage: get ' + key);
-
-                            let result;
-
-                            switch (key) {
-                                case 'excalidraw':
-                                    result = initData.elements;
-                                    break;
-                                case 'excalidraw-state':
-                                    result = initData.appState;
-                                    break;
-                                default:
-                                    result = storage[key];
-                                    break;
-                            }
-
-                            return JSON.stringify(result);
-                        },
-                        setItem: function (key, val) {
-                            log('localStorage: set ' + key + ' to ' + val);
-
-                            switch (key) {
-                                case 'excalidraw':
-                                    vscode.postMessage({
-                                        command: 'updateExcalidraw',
-                                        data: val
-                                    });
-                                    break;
-                            
-                                case 'excalidraw-state':
-                                    vscode.postMessage({
-                                        command: 'updateExcalidrawState',
-                                        data: val
-                                    });
-                            }
-
-                            storage[key] = val;
-                        },
-                        removeItem: function (key) {
-                            log('localStorage: remove ' + key);
-                            delete storage[key];
+                switch (message.command) {
+                    case 'loadLocalData':
+                        try {
+                            initData = JSON.parse(message.data || '{}');
+                            initLocalStorage();
+                            initScript();
+                        } catch (error) {
+                            throw new Error(error);
                         }
-                    };
 
-                    Object.defineProperty(window, 'localStorage', {
-                        value: bridgedLocalStorage
-                    });
+                        break;
                 }
+            });
 
-                function initScript() {
-                    const fragment = document.createDocumentFragment();
-                    const runtimeTag = document.createElement('script');
-                    const mainScriptTag = document.createElement('script');
-                    const chunkScript = '{{chunkScript}}';
-                    runtimeTag.src = '{{runtimeScriptOnDisk}}';
-                    mainScriptTag.src = '{{mainScriptOnDisk}}';
+            function initLocalStorage() {
+                const vscode = acquireVsCodeApi();
 
-                    fragment.appendChild(runtimeTag);
+                const storage = {};
+                const log = console.log;
+                const bridgedLocalStorage = {
+                    getItem: function (key) {
+                        log('localStorage: get ' + key);
 
-                    chunkScript.split(',').forEach(item => {
-                        const tag = document.createElement('script');
-                        tag.src = item;
-                        fragment.appendChild(tag);
-                    });
-                    fragment.appendChild(mainScriptTag);
+                        let result;
 
-                    document.body.appendChild(fragment);
-                };
-
-                // rewrite command/ctrl + s
-                const isDarwin = /Mac|iPod|iPhone|iPad/.test(window.navigator.platform);
-                const CTRL_OR_CMD = isDarwin ? 'metaKey' : 'ctrlKey';
-
-                function patchFn(clazz, fnName, fnFactory) {
-                    var old = clazz[fnName];
-                    clazz[fnName] = fnFactory(old);
-                };
-                
-                patchFn(document, 'addEventListener', old => {
-                    return function(...args) {
-                        const [eventName, oldHandler] = args;
-                        console.log("Intercepting addListener", args);
-                        if (eventName === 'keydown') {
-                            args[1] = e => {
-                                if (e.key === "s" && e[CTRL_OR_CMD]) {
-                                    console.log('command/ctrl + s');
-                                    return false;
-                                }
-                                return oldHandler(e);
-                            }
+                        switch (key) {
+                            case 'excalidraw':
+                                result = initData.elements;
+                                break;
+                            case 'excalidraw-state':
+                                result = initData.appState;
+                                break;
+                            default:
+                                result = storage[key];
+                                break;
                         }
-                        return old.apply(this, args);
+
+                        return JSON.stringify(result);
+                    },
+                    setItem: function (key, val) {
+                        log('localStorage: set ' + key + ' to ' + val);
+
+                        switch (key) {
+                            case 'excalidraw':
+                                vscode.postMessage({
+                                    command: 'updateExcalidraw',
+                                    data: val
+                                });
+                                break;
+
+                            case 'excalidraw-state':
+                                vscode.postMessage({
+                                    command: 'updateExcalidrawState',
+                                    data: val
+                                });
+                        }
+
+                        storage[key] = val;
+                    },
+                    removeItem: function (key) {
+                        log('localStorage: remove ' + key);
+                        delete storage[key];
                     }
-                })
-            })();
-        </script>
-    </body>
+                };
+
+                Object.defineProperty(window, 'localStorage', {
+                    value: bridgedLocalStorage
+                });
+            }
+
+            function initScript() {
+                const fragment = document.createDocumentFragment();
+                const runtimeTag = document.createElement('script');
+                const mainScriptTag = document.createElement('script');
+                const chunkScript = '{{chunkScript}}';
+                runtimeTag.src = '{{runtimeScriptOnDisk}}';
+                mainScriptTag.src = '{{mainScriptOnDisk}}';
+
+                fragment.appendChild(runtimeTag);
+
+                chunkScript.split(',').forEach(item => {
+                    const tag = document.createElement('script');
+                    tag.src = item;
+                    fragment.appendChild(tag);
+                });
+                fragment.appendChild(mainScriptTag);
+
+                document.body.appendChild(fragment);
+            };
+
+            // rewrite command/ctrl + s
+            const isDarwin = /Mac|iPod|iPhone|iPad/.test(window.navigator.platform);
+            const CTRL_OR_CMD = isDarwin ? 'metaKey' : 'ctrlKey';
+
+            function patchFn(originalFn) {
+                return function (...args) {
+                    const [eventName, oldHandler] = args;
+                    console.log("Intercepting addListener", args);
+                    if (eventName === 'keydown') {
+                        args[1] = e => {
+                            if (e.key === "s" && e[CTRL_OR_CMD]) {
+                                console.log('command/ctrl + s');
+                                return false;
+                            }
+                            return oldHandler(e);
+                        }
+                    }
+                    return originalFn.apply(this, args);
+                }
+            }
+
+            document.addEventListener = patchFn(document.addEventListener);
+        })();
+    </script>
+</body>
+
 </html>
