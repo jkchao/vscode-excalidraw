@@ -8,9 +8,8 @@ The [Excalidraw](https://excalidraw.com/) plugin in VSCode
 
 ## Features
 
-- Edit `.excalidraw` file in editor
-- Create `.excalidraw` file, and open it
-
+- Edit `.excalidraw`, `.excalidraw.json`, `.exd.json` file in editor.
+- Create `.excalidraw`, `.excalidraw.json`, `.exd.json` file, and open it.
 
 ## Extension Settings
 

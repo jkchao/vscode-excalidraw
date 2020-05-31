@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.0.6
+
+- Support `.excalidraw`, `.excalidraw.json`, `.exd.json` file.
+
 ## 0.0.5
 
 - Remove `Reset the canvas` Btn.

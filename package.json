@@ -2,7 +2,7 @@
 	"name": "vscode-excalidraw-plugin",
 	"displayName": "Excalidraw VSCode Plugin",
 	"description": "excalidraw vscode plugin",
-	"version": "0.0.5",
+	"version": "0.0.6",
 	"publisher": "jkchao",
 	"repository": {
 		"type": "git",
@@ -23,6 +23,12 @@
 				"selector": [
 					{
 						"filenamePattern": "*.excalidraw"
+					},
+					{
+						"filenamePattern": "*.excalidraw.json"
+					},
+					{
+						"filenamePattern": "*.exd.json"
 					}
 				]
 			}
