@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { join } from 'path';
 import html from './webviewHtml.html';
+import { EXCALIDRAW_DEFAULT_BACKGROUNDCOLOR } from './constants';
 
 // https://github.com/webpack/webpack/issues/4175
 declare const __non_webpack_require__: any;
@@ -18,6 +19,9 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
 
     private static readonly viewType = 'excalidraw.openEditor';
     private buildPath: string;
+    private elements = [];
+    private config = vscode.workspace.getConfiguration('excalidraw');
+    private viewBackgroundColor = '';
 
     constructor(private context: vscode.ExtensionContext) {
         this.buildPath = join(context.extensionPath, 'excalidraw', 'build');
@@ -28,16 +32,28 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
             scheme: 'vscode-resource'
         });
     }
-    private async updateExcalidrawContent(document: vscode.TextDocument, data: string) {
+    private async updateExcalidrawContent(
+        document: vscode.TextDocument,
+        data: string,
+        key: 'updateExcalidraw' | 'updateExcalidrawState'
+    ) {
         // https://github.com/excalidraw/excalidraw/blob/c427aa3cce801bef4dd9107e1044d3a4f61a201e/src/data/json.ts#L12
-        const elements = JSON.parse(data);
+        const parseData = JSON.parse(data);
+
+        if (key === 'updateExcalidraw') {
+            this.elements = parseData;
+        }
+
+        if (key === 'updateExcalidrawState') {
+            this.viewBackgroundColor = parseData.viewBackgroundColor;
+        };
 
         // TODO AppState, viewBackgroundColor
         const result = JSON.stringify({
             type: 'excalidraw',
-            elements: elements.filter((element: any) => !element.isDeleted),
+            elements: this.elements.filter((element: any) => !element.isDeleted),
             appState: {
-                viewBackgroundColor: '#ffffff'
+                viewBackgroundColor: this.viewBackgroundColor
             }
         });
 
@@ -112,9 +128,12 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
 
         webviewPanel.webview.onDidReceiveMessage(e => {
             switch (e.command) {
-                case 'update':
-                    this.updateExcalidrawContent(document, e.data);
+                case 'updateExcalidraw':
+                    this.updateExcalidrawContent(document, e.data, 'updateExcalidraw');
                     return;
+
+                case 'updateExcalidrawState':
+                    this.updateExcalidrawContent(document, e.data, 'updateExcalidrawState');
             }
         });
     }
@@ -122,9 +141,19 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
     public async postFileContentToWebView(document: vscode.TextDocument, webviewPanel: vscode.WebviewPanel) {
         const fileContent = await vscode.workspace.fs.readFile(document.uri);
 
-        if (fileContent) {
+        if (fileContent.length !== 0) {
             // init data to extension
             webviewPanel.webview.postMessage({ command: 'loadLocalData', data: fileContent.toString() });
+        } else {
+            // empty data
+            const result = JSON.stringify({
+                type: 'excalidraw',
+                elements: [],
+                appState: {
+                    viewBackgroundColor: this.config.get(EXCALIDRAW_DEFAULT_BACKGROUNDCOLOR)
+                }
+            });
+            webviewPanel.webview.postMessage({ command: 'loadLocalData', data: result });
         }
     }
 }

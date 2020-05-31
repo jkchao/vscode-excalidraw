@@ -11,6 +11,12 @@ The [Excalidraw](https://excalidraw.com/) plugin in VSCode
 - Edit `.excalidraw` file in editor
 - Create `.excalidraw` file, and open it
 
+
+## Extension Settings
+
+| Setting        | type    | default      | Required | desc                                                          |
+| -------------- | ------- | ------------ | -------- | ------------------------------------------------------------- |
+| excalidraw.defaultBackgroundColor   | string  | "#ffffff"   | false     | The Default Background Color             |
 ## DEMO
 
 ### 1.Base
@@ -21,4 +27,10 @@ The [Excalidraw](https://excalidraw.com/) plugin in VSCode
 
 ![demo2](./images/demo02.gif)
 
-<!-- TODO -->
+## TODO
+
+There have many features in [Excalidraw](https://excalidraw.com/), but not implement in the plugin. For example the live collaboration.
+
+We are planning to implement these features, but we have some problems that not been resolved right now. For example in [stackoverflow](https://stackoverflow.com/questions/62102767/how-to-use-window-crypto-subtle-in-vscode-webview).
+
+So if there has any answer, The feature will be implemented.

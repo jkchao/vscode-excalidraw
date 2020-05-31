@@ -2,7 +2,7 @@
 	"name": "vscode-excalidraw-plugin",
 	"displayName": "Excalidraw VSCode Plugin",
 	"description": "excalidraw vscode plugin",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"publisher": "jkchao",
 	"repository": {
 		"type": "git",
@@ -26,8 +26,19 @@
 					}
 				]
 			}
-		]
+		],
+		"configuration": {
+			"title": "Excalidraw plugin config",
+			"properties": {
+				"excalidraw.defaultBackgroundColor": {
+					"type": "string",
+					"description": "defaultBackgroundColor",
+					"default": "#ffffff"
+				}
+			}
+		}
 	},
+
 	"engines": {
 		"vscode": "^1.45.0"
 	},

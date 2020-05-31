@@ -1,0 +1,1 @@
+export const EXCALIDRAW_DEFAULT_BACKGROUNDCOLOR = 'defaultBackgroundColor';

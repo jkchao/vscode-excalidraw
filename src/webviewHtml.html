@@ -64,6 +64,7 @@
             /* hidden open save and share */
             .App-menu_top >.Stack .Stack_horizontal > .ToolIcon_type_button:nth-child(1),
             .App-menu_top >.Stack .Stack_horizontal > .ToolIcon_type_button:nth-child(2),
+            .App-menu_top >.Stack .Stack_horizontal > .ToolIcon_type_button:nth-child(4),
             .App-menu_top >.Stack .Stack_horizontal > .ToolIcon_type_button:nth-child(5) {
                 display: none;
             }
@@ -126,19 +127,27 @@
                                     result = storage[key];
                                     break;
                             }
+
                             return JSON.stringify(result);
                         },
                         setItem: function (key, val) {
                             log('localStorage: set ' + key + ' to ' + val);
 
-                            // TODO, now only excalidraw
-                            // has some othe key, eg excalidraw-state
-                            if (key === 'excalidraw') {
-                                vscode.postMessage({
-                                    command: 'update',
-                                    data: val
-                                });
+                            switch (key) {
+                                case 'excalidraw':
+                                    vscode.postMessage({
+                                        command: 'updateExcalidraw',
+                                        data: val
+                                    });
+                                    break;
+                            
+                                case 'excalidraw-state':
+                                    vscode.postMessage({
+                                        command: 'updateExcalidrawState',
+                                        data: val
+                                    });
                             }
+
                             storage[key] = val;
                         },
                         removeItem: function (key) {

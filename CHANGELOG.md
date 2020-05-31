@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.0.5
+
+- Remove `Reset the canvas` Btn.
+- Add config, the defaultBackgroundColor
+- Update Excalidraw
+
 ## 0.0.4
 
 - Use the last Excalidraw
