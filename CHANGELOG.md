@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.0.7
+
+- Update Excalidraw
+
 ## 0.0.6
 
 - Support `.excalidraw`, `.excalidraw.json`, `.exd.json` file.
