@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ExcaliDraw</title>
 
-    <link rel="stylesheet" href="{{extensionPath}}/fonts.css" />
+    <link rel="stylesheet" href="{{fontPath}}" />
     <style>
         /* http://www.eaglefonts.com/fg-virgil-ttf-131249.htm */
         @font-face {
@@ -75,6 +75,11 @@
     <div id="root">
         <div class="LoadingMessage"><span>Loading scene...</span></div>
     </div>
+
+
+    <!-- <script src="{{runtimeScriptOnDisk}}"></script>
+    ${chunkScriptsUri.map((item) => `<script src="${item}"></script>`)}
+    <script src="{{mainScriptOnDisk}}"></script> -->
 
     <script>
         (() => {
@@ -168,6 +173,10 @@
                 const chunkScript = '{{chunkScript}}';
                 runtimeTag.src = '{{runtimeScriptOnDisk}}';
                 mainScriptTag.src = '{{mainScriptOnDisk}}';
+
+                console.log(chunkScript);
+                console.log(runtimeTag.src);
+                console.log(mainScriptTag.src);
 
                 fragment.appendChild(runtimeTag);
 
