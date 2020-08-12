@@ -9,11 +9,7 @@ declare const __non_webpack_require__: any;
 export class ExcalidrawEditorProvider implements vscode.CustomExecution {
     public static register(context: vscode.ExtensionContext): vscode.Disposable {
         const provider = new ExcalidrawEditorProvider(context);
-        const providerRegistration = vscode.window.registerCustomEditorProvider(
-            ExcalidrawEditorProvider.viewType,
-            provider,
-            { webviewOptions: { retainContextWhenHidden: true } }
-        );
+        const providerRegistration = vscode.window.registerCustomEditorProvider(ExcalidrawEditorProvider.viewType, provider, { webviewOptions: { retainContextWhenHidden: true } });
         return providerRegistration;
     }
 
@@ -29,14 +25,10 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
 
     private readFileOnDisk(path: string) {
         return vscode.Uri.file(join(this.buildPath, path)).with({
-            scheme: 'vscode-resource'
+            scheme: 'vscode-resource',
         });
     }
-    private async updateExcalidrawContent(
-        document: vscode.TextDocument,
-        data: string,
-        key: 'updateExcalidraw' | 'updateExcalidrawState'
-    ) {
+    private async updateExcalidrawContent(document: vscode.TextDocument, data: string, key: 'updateExcalidraw' | 'updateExcalidrawState') {
         // https://github.com/excalidraw/excalidraw/blob/c427aa3cce801bef4dd9107e1044d3a4f61a201e/src/data/json.ts#L12
         const parseData = JSON.parse(data);
 
@@ -46,15 +38,15 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
 
         if (key === 'updateExcalidrawState') {
             this.viewBackgroundColor = parseData.viewBackgroundColor;
-        };
+        }
 
         // TODO AppState, viewBackgroundColor
         const result = JSON.stringify({
             type: 'excalidraw',
             elements: this.elements.filter((element: any) => !element.isDeleted),
             appState: {
-                viewBackgroundColor: this.viewBackgroundColor
-            }
+                viewBackgroundColor: this.viewBackgroundColor,
+            },
         });
 
         if (result === document.getText()) {
@@ -63,11 +55,7 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
 
         const workspaceEdit = new vscode.WorkspaceEdit();
 
-        workspaceEdit.replace(
-            document.uri,
-            new vscode.Range(0, 0, document.lineCount, 0),
-            result
-        );
+        workspaceEdit.replace(document.uri, new vscode.Range(0, 0, document.lineCount, 0), result);
 
         try {
             await vscode.workspace.applyEdit(workspaceEdit);
@@ -98,8 +86,6 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
 
         const runtimeScriptOnDisk = this.readFileOnDisk(runtimeScript);
 
-
-
         const mainScriptOnDisk = this.readFileOnDisk(mainScript);
         const styleScriptOnDisk = this.readFileOnDisk(mainStyle);
         const virgilFontOnDisk = this.readFileOnDisk('FG_Virgil.woff2');
@@ -117,7 +103,6 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
         //     .replace(new RegExp('{{mainScriptOnDisk}}', 'g'), mainScriptOnDisk.toString());
 
         // return patchedHtml;
-
 
         return `
             <!DOCTYPE html>
@@ -198,11 +183,7 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
                     <div class="LoadingMessage"><span>Loading scene...</span></div>
                 </div>
             
-            
-                // <script src="${runtimeScriptOnDisk}"></script>
-                // ${chunkScript.map((item) => `<script src="${item}"></script>`)}
-                // <script src="${mainScriptOnDisk}"></script>
-            
+
                 <script>
                     (() => {
                         let initData = {};
@@ -295,6 +276,8 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
                             const chunkScript = '${chunkScript}';
                             runtimeTag.src = '${runtimeScriptOnDisk}';
                             mainScriptTag.src = '${mainScriptOnDisk}';
+
+                            console.log(chunkScript);
             
                             fragment.appendChild(runtimeTag);
             
@@ -331,17 +314,20 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
                         document.addEventListener = patchFn(document.addEventListener);
                     })();
                 </script>
+
+                <script src="${runtimeScriptOnDisk}"></script>
+                ${chunkScript.map((item) => `<script src="${item}"></script>`)}
+                <script src="${mainScriptOnDisk}"></script>
             </body>
             
             </html>
-        `
-
+        `;
     }
 
     public resolveCustomTextEditor(document: vscode.TextDocument, webviewPanel: vscode.WebviewPanel) {
         webviewPanel.webview.options = {
             enableScripts: true,
-            localResourceRoots: [vscode.Uri.file(join(this.buildPath))]
+            localResourceRoots: [vscode.Uri.file(join(this.buildPath))],
         };
 
         webviewPanel.webview.html = this.createWebViewContent(webviewPanel.webview);
@@ -352,7 +338,7 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
             // ..
         });
 
-        webviewPanel.webview.onDidReceiveMessage(e => {
+        webviewPanel.webview.onDidReceiveMessage((e) => {
             switch (e.command) {
                 case 'updateExcalidraw':
                     this.updateExcalidrawContent(document, e.data, 'updateExcalidraw');
@@ -376,8 +362,8 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
                 type: 'excalidraw',
                 elements: [],
                 appState: {
-                    viewBackgroundColor: this.config.get(EXCALIDRAW_DEFAULT_BACKGROUNDCOLOR)
-                }
+                    viewBackgroundColor: this.config.get(EXCALIDRAW_DEFAULT_BACKGROUNDCOLOR),
+                },
             });
             webviewPanel.webview.postMessage({ command: 'loadLocalData', data: result });
         }
