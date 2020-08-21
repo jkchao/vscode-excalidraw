@@ -17,7 +17,7 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
     private buildPath: string;
     private elements = [];
     private config = vscode.workspace.getConfiguration('excalidraw');
-    private viewBackgroundColor = '';
+    private appState = {};
 
     constructor(private context: vscode.ExtensionContext) {
         this.buildPath = join(context.extensionPath, 'excalidraw', 'build');
@@ -37,16 +37,14 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
         }
 
         if (key === 'updateExcalidrawState') {
-            this.viewBackgroundColor = parseData.viewBackgroundColor;
+            this.appState = parseData;
         }
 
         // TODO AppState, viewBackgroundColor
         const result = JSON.stringify({
             type: 'excalidraw',
             elements: this.elements.filter((element: any) => !element.isDeleted),
-            appState: {
-                viewBackgroundColor: this.viewBackgroundColor,
-            },
+            appState: this.appState,
         });
 
         if (result === document.getText()) {
@@ -170,7 +168,7 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
                     }
             
                     .App-menu_top>.Stack .Stack_horizontal>.ToolIcon_type_button:nth-child(1),
-                    .App-menu_top>.Stack .Stack_horizontal>.ToolIcon_type_button:nth-child(4),
+                    .App-menu_top>.Stack .Stack_horizontal>.ToolIcon_type_button:nth-child(2),
                     .App-menu_top>.Stack .Stack_horizontal>.ToolIcon_type_button:nth-child(5),
                     .App-menu_top>.Stack .Stack_horizontal>.ToolIcon_type_button:nth-child(6) {
                         display: none;
@@ -204,7 +202,7 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
                                     try {
                                         initData = JSON.parse(message.data || '{}');
                                         initLocalStorage();
-                                        initScript();
+                                        reloadScript();
                                     } catch (error) {
                                         throw new Error(error);
                                     }
@@ -269,27 +267,18 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
                             });
                         }
             
-                        function initScript() {
+                        function reloadScript() {
                             const fragment = document.createDocumentFragment();
                             const runtimeTag = document.createElement('script');
                             const mainScriptTag = document.createElement('script');
-                            const chunkScript = '${chunkScript}';
                             runtimeTag.src = '${runtimeScriptOnDisk}';
                             mainScriptTag.src = '${mainScriptOnDisk}';
 
-                            console.log(chunkScript);
-            
                             fragment.appendChild(runtimeTag);
-            
-                            chunkScript.split(',').forEach(item => {
-                                const tag = document.createElement('script');
-                                tag.src = item;
-                                fragment.appendChild(tag);
-                            });
                             fragment.appendChild(mainScriptTag);
                             document.body.appendChild(fragment);
                         };
-            
+
                         // rewrite command/ctrl + s
                         const isDarwin = /Mac|iPod|iPhone|iPad/.test(window.navigator.platform);
                         const CTRL_OR_CMD = isDarwin ? 'metaKey' : 'ctrlKey';
