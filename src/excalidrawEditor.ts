@@ -111,7 +111,7 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                 <title>ExcaliDraw</title>
             
-                <link rel="stylesheet" href="${fontPathOnDisk}" />
+
                 <style>
                     /* http://www.eaglefonts.com/fg-virgil-ttf-131249.htm */
                     @font-face {
