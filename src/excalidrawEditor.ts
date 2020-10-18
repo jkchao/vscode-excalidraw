@@ -167,7 +167,7 @@ export class ExcalidrawEditorProvider implements vscode.CustomExecution {
                         justify-content: start !important;
                     }
             
-                    .App-menu_top>.Stack .Stack_horizontal>.ToolIcon_type_button:nth-child(1),
+
                     .App-menu_top>.Stack .Stack_horizontal>.ToolIcon_type_button:nth-child(2),
                     .App-menu_top>.Stack .Stack_horizontal>.ToolIcon_type_button:nth-child(5),
                     .App-menu_top>.Stack .Stack_horizontal>.ToolIcon_type_button:nth-child(6) {
